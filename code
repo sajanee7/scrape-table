@@ -1,0 +1,34 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+url='https://www.worldometers.info/world-population/population-by-country/'
+
+response=requests.get(url)
+soup=BeautifulSoup(response.text, 'html.parser')
+
+rows=soup.find('table',{'id':'example2'}).find('tbody').find_all('tr')
+
+countries_list=[]
+
+for row in rows:
+    dict={}
+
+    dict['Country']=row.find_all('td')[1].text
+    dict['Population (2023)']=row.find_all('td')[2].text.replace(',','')
+    dict['Yearly Change']=row.find_all('td')[3].text
+    dict['Net Change']=row.find_all('td')[4].text.replace(',','')
+    dict['Density(P/Km^2)']=row.find_all('td')[5].text
+    dict['Land Area']=row.find_all('td')[6].text.replace(',','')
+    dict['Migrants Net']=row.find_all('td')[7].text.replace(',','')
+    dict['Fert. Rate']=row.find_all('td')[8].text
+    dict['Med. Age']=row.find_all('td')[9].text
+    dict['Urban Pop']=row.find_all('td')[10].text
+    dict['World Share']=row.find_all('td')[11].text
+
+    countries_list.append(dict)
+
+df=pd.DataFrame(countries_list)
+
+df.to_csv('countries_list.csv',index=False)
+df.to_excel('countries_list.xlsx',index=False)
